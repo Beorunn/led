@@ -139,7 +139,7 @@ int main(void)
 		  mode1(10000);
 		  break;
 	  case 3:
-
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
 		  mode3();
 		  break;
 	  default:
@@ -410,11 +410,13 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 			mode = 1;
 			break;
 		case '2':
+
 			HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
 			__HAL_TIM_SET_COUNTER(&htim2, 0);
 			mode = 2;
 			break;
 		case '3':
+
 			mode = 3;
 			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 		default:
