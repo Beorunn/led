@@ -53,8 +53,8 @@ int pulse =0;
 //uint8_t tx_led_5 [] = "5";
 //uint8_t tx_led_10 []= "10";
 //uint8_t tx_led_15 [] = "15";
-//uint8_t mode = 1 ;
-//char Rx;
+uint8_t mode = 1 ;
+char Rx;
 
 
 
@@ -111,7 +111,7 @@ int main(void)
   HAL_TIM_Base_Start(&htim1);
   HAL_TIM_Base_Start(&htim2);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-  HAL_UART_Receive_IT(&huart1 , Rx, 1 );
+  HAL_UART_Receive_IT(&huart1, (uint8_t*)&Rx, 1);
   void mode1(int time);
   void mode3();
   /* USER CODE END 2 */
@@ -124,30 +124,27 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-//	  for(int i=0; i< 1000; i++){
-//		  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, i );
-//	  }
 
-//	  switch(mode){
-//	  case '1':
-//		  mode1(1000);
-////		  HAL_UART_Transmit(&huart1, tx_led_5, sizeof(tx_led_5), 10);
-//		  break;
-//	  case '2':
-//		  mode1(5000);
-////		  HAL_UART_Transmit(&huart1, tx_led_10, sizeof(tx_led_10), 10);
-//		  break;
-//	  case '3':
-//		  mode3();
-////		  HAL_UART_Transmit(&huart1, tx_led_15, sizeof(tx_led_15), 10);
-//		  break;
-//	  default:
-//		  break;
-//
-//	  }
-	  mode1(5000);
+	 //mode1(5000);
 	 // mode1(10000);
-	//  mode3();
+	 //mode3();
+
+	  switch(mode){
+	  case 1:
+
+		  mode1(5000);
+		  break;
+	  case 2:
+
+		  mode1(10000);
+		  break;
+	  case 3:
+
+		  mode3();
+		  break;
+	  default:
+		  break;
+	  }
 
 
   }
@@ -369,7 +366,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : PC13 */
   GPIO_InitStruct.Pin = GPIO_PIN_13;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
@@ -400,7 +397,7 @@ void mode1(int time){
 	  uint32_t current_tick = __HAL_TIM_GET_COUNTER(&htim2);
 	  if(current_tick >= time){
 		  __HAL_TIM_SET_COUNTER(&htim2, 0);
-		  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13 );
+		  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_11 );
 	  }
 
 }
@@ -408,16 +405,22 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 	if( huart->Instance ==huart1.Instance){
 		switch(Rx){
 		case '1':
-			mode1(5000);
+			HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+			__HAL_TIM_SET_COUNTER(&htim2, 0);
+			mode = 1;
 			break;
 		case '2':
-			mode1(10000);
+			HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+			__HAL_TIM_SET_COUNTER(&htim2, 0);
+			mode = 2;
 			break;
 		case '3':
-			mode3();
+			mode = 3;
+			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 		default:
 			break;
 		}
+		HAL_UART_Receive_IT(&huart1, (uint8_t*)&Rx, 1);
 	}
 
 }
